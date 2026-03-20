@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mike's LinkedIn Job Search HQ</title>
+<title>LinkedIn Job Search HQ</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -670,8 +670,8 @@
 
 <div class="sidebar">
   <div class="sidebar-logo">
-    <div class="name">Mike Hupp</div>
-    <div class="role">// job search hq</div>
+    <div class="name">Job Search HQ</div>
+    <div class="role">// linkedin system</div>
   </div>
 
   <div class="nav-section">Daily</div>
@@ -1785,7 +1785,7 @@ function exportNetwork() {
   const blob = new Blob([csv], {type:'text/csv'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'mike_network_tracker.csv'; a.click();
+  a.href = url; a.download = 'network_tracker.csv'; a.click();
   toast('CSV exported ✓');
 }
 
@@ -1915,7 +1915,7 @@ function exportAllData() {
   const a = document.createElement('a');
   const dateStr = new Date().toISOString().split('T')[0];
   a.href = url;
-  a.download = `mike_dashboard_backup_${dateStr}.json`;
+  a.download = `dashboard_backup_${dateStr}.json`;
   a.click();
   URL.revokeObjectURL(url);
   toast('✅ Backup downloaded! Save this file safely.');
