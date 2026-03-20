@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mike's LinkedIn Job Search HQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #14171f;
+    --surface2: #1c2030;
+    --surface3: #232840;
+    --accent: #4f8ef7;
+    --accent2: #7c5cfc;
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --text: #e8eaf0;
+    --text2: #8b92a8;
+    --text3: #5a6080;
+    --border: #252a3a;
+    --border2: #2e3450;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Layout */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 220px;
+    height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 0;
+    z-index: 100;
+    overflow-y: auto;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+
+  .sidebar-logo .name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--text);
+  }
+
+  .sidebar-logo .role {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    margin-top: 2px;
+  }
+
+  .nav-section {
+    padding: 8px 12px 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    color: var(--text2);
+    cursor: pointer;
+    border-radius: 0;
+    transition: all 0.15s;
+    font-size: 13px;
+    border-left: 2px solid transparent;
+  }
+
+  .nav-item:hover, .nav-item.active {
+    color: var(--text);
+    background: var(--surface2);
+    border-left-color: var(--accent);
+  }
+
+  .nav-item .icon { font-size: 14px; width: 18px; }
+
+  .main {
+    margin-left: 220px;
+    padding: 32px 40px;
+    max-width: 1200px;
+  }
+
+  /* Page Sections */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Header */
+  .page-header {
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-header h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .page-header p {
+    color: var(--text2);
+    margin-top: 6px;
+    font-size: 14px;
+  }
+
+  /* Cards Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Stat Cards */
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--accent);
+  }
+
+  .stat-card.green::before { background: var(--green); }
+  .stat-card.yellow::before { background: var(--yellow); }
+  .stat-card.purple::before { background: var(--accent2); }
+
+  .stat-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 36px;
+    color: var(--text);
+    line-height: 1;
+    margin: 8px 0 4px;
+  }
+
+  .stat-sub { font-size: 12px; color: var(--text2); }
+
+  /* Daily Checklist */
+  .checklist { list-style: none; }
+
+  .checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .checklist-item:last-child { border-bottom: none; }
+
+  .checklist-item.done { opacity: 0.45; }
+
+  .checklist-item.done .check-label { text-decoration: line-through; }
+
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border2);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .checklist-item.done .check-box {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  .check-label {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .check-label span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(79,142,247,0.1);
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-right: 6px;
+  }
+
+  .check-sub {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  /* Progress Bar */
+  .progress-wrap { margin: 16px 0 8px; }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 6px;
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: var(--surface3);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 500;
+  }
+
+  .badge-blue { background: rgba(79,142,247,0.15); color: var(--accent); }
+  .badge-green { background: rgba(52,211,153,0.15); color: var(--green); }
+  .badge-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); }
+  .badge-red { background: rgba(248,113,113,0.15); color: var(--red); }
+  .badge-purple { background: rgba(124,92,252,0.15); color: var(--accent2); }
+
+  /* Table */
+  .data-table { width: 100%; border-collapse: collapse; }
+
+  .data-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .data-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--surface2); }
+
+  /* Input / Select */
+  input, select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+
+  input::placeholder { color: var(--text3); }
+
+  select option { background: var(--surface2); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover { background: #3a7de0; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border2);
+  }
+
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--red);
+    border: 1px solid rgba(248,113,113,0.3);
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .btn-danger:hover { background: rgba(248,113,113,0.1); }
+
+  /* Section Labels */
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 28px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Message Templates */
+  .template-block {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text2);
+    position: relative;
+  }
+
+  .template-block .template-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .template-block .copy-btn {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: var(--surface3);
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    transition: all 0.15s;
+  }
+
+  .template-block .copy-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .template-block em {
+    color: var(--accent);
+    font-style: normal;
+    background: rgba(79,142,247,0.1);
+    padding: 0 4px;
+    border-radius: 3px;
+  }
+
+  /* Comment Bank Items */
+  .comment-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .comment-item:last-child { border-bottom: none; }
+
+  .comment-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    white-space: nowrap;
+    padding-top: 2px;
+    min-width: 90px;
+  }
+
+  .comment-text {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  /* Rule Blocks */
+  .rule-block {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+  .rule-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .rule-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .rule-text strong { color: var(--text); }
+
+  /* Daily counter widget */
+  .counter-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .counter-item {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .counter-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 32px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .counter-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .counter-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .count-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border2);
+    background: var(--surface3);
+    color: var(--text);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+
+  .count-btn:hover { background: var(--accent); border-color: var(--accent); }
+
+  .counter-target {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 6px;
+  }
+
+  .target-met { color: var(--green) !important; }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+
+  .tab {
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover { color: var(--text); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Network form */
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-label { font-size: 11px; color: var(--text3); font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .form-group input, .form-group select {
+    width: 100%;
+  }
+
+  /* Weekly Review */
+  .review-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .review-item:last-child { border-bottom: none; }
+  .review-question { font-size: 13px; color: var(--text); }
+  .review-input { width: 220px; }
+
+  /* Toast */
+  #toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--surface3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.2s;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  /* Algo Tips */
+  .algo-tip {
+    background: linear-gradient(135deg, rgba(79,142,247,0.08), rgba(124,92,252,0.08));
+    border: 1px solid rgba(79,142,247,0.2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 12px;
+  }
+
+  .algo-tip-icon { font-size: 18px; flex-shrink: 0; }
+  .algo-tip-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .algo-tip-text strong { color: var(--accent); }
+
+  /* Date display */
+  .date-display {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text3);
+    margin-bottom: 4px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="name">Mike Hupp</div>
+    <div class="role">// job search hq</div>
+  </div>
+
+  <div class="nav-section">Daily</div>
+  <div class="nav-item active" onclick="showPage('daily')"><span class="icon">⚡</span> Today's Block</div>
+  <div class="nav-item" onclick="showPage('counters')"><span class="icon">🎯</span> Daily Counters</div>
+
+  <div class="nav-section">Trackers</div>
+  <div class="nav-item" onclick="showPage('network')"><span class="icon">🔗</span> Network Tracker</div>
+  <div class="nav-item" onclick="showPage('weekly')"><span class="icon">📊</span> Weekly Review</div>
+
+  <div class="nav-section">Playbook</div>
+  <div class="nav-item" onclick="showPage('templates')"><span class="icon">✉️</span> Message Templates</div>
+  <div class="nav-item" onclick="showPage('comments')"><span class="icon">💬</span> Comment Bank</div>
+  <div class="nav-item" onclick="showPage('rules')"><span class="icon">📋</span> Operating Rules</div>
+  <div class="nav-item" onclick="showPage('algo')"><span class="icon">⚙️</span> Algorithm Tips</div>
+</div>
+
+<div class="main">
+
+  <!-- TODAY'S BLOCK -->
+  <div id="page-daily" class="page active">
+    <div class="page-header">
+      <div class="date-display" id="today-date"></div>
+      <h1>Today's LinkedIn Block</h1>
+      <p>Your 20–25 minute daily system. Check off as you go.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="stat-card">
+        <div class="stat-label">Target Connections</div>
+        <div class="stat-value" style="color:var(--accent)">10</div>
+        <div class="stat-sub">adds per day</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Target Engagements</div>
+        <div class="stat-value" style="color:var(--green)">5</div>
+        <div class="stat-sub">thoughtful comments</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-label">Target Messages</div>
+        <div class="stat-value" style="color:var(--yellow)">2</div>
+        <div class="stat-sub">contextual only</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚡ Phase 1 — Warm Signals (First 5 mins)</div>
+      <ul class="checklist" id="phase1">
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label"><span>24hr rule</span> Check accepted connections from yesterday — engage their content</div>
+            <div class="check-sub">If relevant, like or comment on 1 post within 24hrs of accepting</div>
+          </div>
+        </li>
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label"><span>24hr rule</span> Check who commented on your last post — reciprocate</div>
+            <div class="check-sub">Reply or engage back. Compounds reach.</div>
+          </div>
+        </li>
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label"><span>signal</span> Check profile viewers — if relevant, connect or engage their content</div>
+            <div class="check-sub">They came to you first. High warmth signal.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">🔗 Phase 2 — Add Relevant People (8 mins)</div>
+      <ul class="checklist" id="phase2">
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label"><span>4 adds</span> Connect with 4 recruiters (TAM/CSM/Delivery/SaaS niche)</div>
+            <div class="check-sub">No note unless real context exists. Let the profile do the work.</div>
+          </div>
+        </li>
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label"><span>4 adds</span> Connect with 4 hiring managers (Head/Dir/VP CS, Delivery, ProServ)</div>
+            <div class="check-sub">Prioritize people at companies in your target list</div>
+          </div>
+        </li>
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label"><span>2 adds</span> Connect with 2 warm or relevant people (former colleagues, group members)</div>
+            <div class="check-sub">These are your highest-yield adds. Always prioritize warm.</div>
+          </div>
+        </li>
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label"><span>groups</span> Spend 3 mins in 1 LinkedIn group — leave 1 thoughtful comment</div>
+            <div class="check-sub">Target: Customer Success Collective, CS Managers, SaaS Customer Success, PMI</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">💬 Phase 3 — Engage Relevant Content (7 mins)</div>
+      <ul class="checklist" id="phase3">
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label">Comment on 2 hiring manager posts — substantive, adds perspective</div>
+            <div class="check-sub">Not "great post." Add a real point or example from your experience.</div>
+          </div>
+        </li>
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label">Comment on 1 recruiter post</div>
+            <div class="check-sub">Shows up in their feed. Familiarity compounds.</div>
+          </div>
+        </li>
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label">React/engage 2 more relevant posts (delivery, CS, SaaS leaders)</div>
+            <div class="check-sub">Minimum: like. Better: comment. Best: comment + question.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">✉️ Phase 4 — Contextual Outreach (3 mins)</div>
+      <ul class="checklist" id="phase4">
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label">Send 2 contextual messages — only with real context (see Templates page)</div>
+            <div class="check-sub">Warm contact / role-specific / post they shared / profile viewer. No cold asks.</div>
+          </div>
+        </li>
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label">Reply to any DMs or comments received</div>
+            <div class="check-sub">Responsive = credible. Don't leave warm signals cold.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">📝 Posting Days (Tue & Thu — 2 posts/week)</div>
+      <ul class="checklist" id="phase5">
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label"><span>carousel</span> Draft post as PDF carousel (not text) — use Canva, 5–7 slides</div>
+            <div class="check-sub">Same content, 3–4x reach. Carousel > text in 2026 algorithm.</div>
+          </div>
+        </li>
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label"><span>timing</span> Post between 8–10 AM PH time. Stay online 60–90 mins after.</div>
+            <div class="check-sub">Golden Hour: first 90 mins determines if LinkedIn expands your reach.</div>
+          </div>
+        </li>
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label"><span>no links</span> Never put URLs in post body — first comment only if needed</div>
+            <div class="check-sub">External links = 60% reach penalty. Keep posts self-contained.</div>
+          </div>
+        </li>
+        <li class="checklist-item" onclick="toggle(this)">
+          <div class="check-box">✓</div>
+          <div>
+            <div class="check-label">Respond to every comment in the first hour after posting</div>
+            <div class="check-sub">Your replies extend the golden hour and signal quality to the algorithm.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div style="margin-top:20px; display:flex; gap:12px;">
+      <button class="btn btn-ghost" onclick="resetAll()">🔄 Reset All Tasks</button>
+    </div>
+  </div>
+
+  <!-- DAILY COUNTERS -->
+  <div id="page-counters" class="page">
+    <div class="page-header">
+      <div class="date-display" id="counters-date"></div>
+      <h1>Daily Activity Counters</h1>
+      <p>Track your numbers. Hit your targets every day.</p>
+    </div>
+
+    <div class="counter-grid">
+      <div class="counter-item">
+        <div class="counter-num" id="c-connects" style="color:var(--accent)">0</div>
+        <div class="counter-label">Connections Sent</div>
+        <div class="counter-controls">
+          <button class="count-btn" onclick="adjustCounter('connects', -1)">−</button>
+          <button class="count-btn" onclick="adjustCounter('connects', 1)">+</button>
+        </div>
+        <div class="counter-target" id="t-connects">Target: 10</div>
+      </div>
+      <div class="counter-item">
+        <div class="counter-num" id="c-engages" style="color:var(--green)">0</div>
+        <div class="counter-label">Engagements</div>
+        <div class="counter-controls">
+          <button class="count-btn" onclick="adjustCounter('engages', -1)">−</button>
+          <button class="count-btn" onclick="adjustCounter('engages', 1)">+</button>
+        </div>
+        <div class="counter-target" id="t-engages">Target: 5</div>
+      </div>
+      <div class="counter-item">
+        <div class="counter-num" id="c-messages" style="color:var(--yellow)">0</div>
+        <div class="counter-label">Messages Sent</div>
+        <div class="counter-controls">
+          <button class="count-btn" onclick="adjustCounter('messages', -1)">−</button>
+          <button class="count-btn" onclick="adjustCounter('messages', 1)">+</button>
+        </div>
+        <div class="counter-target" id="t-messages">Target: 2</div>
+      </div>
+      <div class="counter-item">
+        <div class="counter-num" id="c-accepts" style="color:var(--accent2)">0</div>
+        <div class="counter-label">Accepts Received</div>
+        <div class="counter-controls">
+          <button class="count-btn" onclick="adjustCounter('accepts', -1)">−</button>
+          <button class="count-btn" onclick="adjustCounter('accepts', 1)">+</button>
+        </div>
+        <div class="counter-target" id="t-accepts">Track only</div>
+      </div>
+      <div class="counter-item">
+        <div class="counter-num" id="c-replies" style="color:var(--green)">0</div>
+        <div class="counter-label">Replies Received</div>
+        <div class="counter-controls">
+          <button class="count-btn" onclick="adjustCounter('replies', -1)">−</button>
+          <button class="count-btn" onclick="adjustCounter('replies', 1)">+</button>
+        </div>
+        <div class="counter-target" id="t-replies">Track only</div>
+      </div>
+      <div class="counter-item">
+        <div class="counter-num" id="c-profile-views" style="color:var(--yellow)">0</div>
+        <div class="counter-label">Profile Views</div>
+        <div class="counter-controls">
+          <button class="count-btn" onclick="adjustCounter('profile-views', -1)">−</button>
+          <button class="count-btn" onclick="adjustCounter('profile-views', 1)">+</button>
+        </div>
+        <div class="counter-target" id="t-profile-views">Track only</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📈 Today's Progress</div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Connections</span><span id="prog-connects-label">0 / 10</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="prog-connects" style="width:0%"></div></div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Engagements</span><span id="prog-engages-label">0 / 5</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="prog-engages" style="width:0%"></div></div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Messages</span><span id="prog-messages-label">0 / 2</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="prog-messages" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div style="margin-top: 16px;">
+      <button class="btn btn-ghost" onclick="resetCounters()">🔄 Reset Counters (New Day)</button>
+    </div>
+  </div>
+
+  <!-- NETWORK TRACKER -->
+  <div id="page-network" class="page">
+    <div class="page-header">
+      <h1>Network Tracker</h1>
+      <p>Track every person in your LinkedIn pipeline — recruiters, hiring managers, warm leads.</p>
+    </div>
+
+    <!-- Add Person Form -->
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-title">➕ Add Person</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input type="text" id="n-name" placeholder="Full name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Company</label>
+          <input type="text" id="n-company" placeholder="Company">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role / Title</label>
+          <input type="text" id="n-role" placeholder="Head of CS, Recruiter...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select id="n-type">
+            <option value="">Select type</option>
+            <option>Recruiter</option>
+            <option>Hiring Manager</option>
+            <option>Company Leader</option>
+            <option>Warm Contact</option>
+            <option>Practitioner</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Cluster</label>
+          <select id="n-cluster">
+            <option value="">Select cluster</option>
+            <option>TAM</option>
+            <option>CSM</option>
+            <option>Delivery Manager</option>
+            <option>Program Manager</option>
+            <option>Multiple</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select id="n-priority">
+            <option value="">Priority</option>
+            <option>🔥 High</option>
+            <option>⚡ Medium</option>
+            <option>· Low</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date Added</label>
+          <input type="date" id="n-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Connected?</label>
+          <select id="n-connected">
+            <option>No</option>
+            <option>Yes</option>
+            <option>Pending</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Engaged Content?</label>
+          <select id="n-engaged">
+            <option>No</option>
+            <option>Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Messaged?</label>
+          <select id="n-messaged">
+            <option>No</option>
+            <option>Yes – Warm</option>
+            <option>Yes – Role-specific</option>
+            <option>Yes – Follow-up</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Replied?</label>
+          <select id="n-replied">
+            <option>No</option>
+            <option>Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Opportunity?</label>
+          <select id="n-opportunity">
+            <option>No</option>
+            <option>Discussed</option>
+            <option>Referred</option>
+            <option>Interview</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="grid-column: 1 / -1">
+          <label class="form-label">Next Action</label>
+          <input type="text" id="n-next" placeholder="e.g. Comment on their post Fri, follow up next week...">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="addNetworkEntry()">Add to Tracker</button>
+    </div>
+
+    <!-- Filter -->
+    <div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+      <select id="filter-type" onchange="renderNetwork()" style="width:auto">
+        <option value="">All Types</option>
+        <option>Recruiter</option>
+        <option>Hiring Manager</option>
+        <option>Company Leader</option>
+        <option>Warm Contact</option>
+        <option>Practitioner</option>
+      </select>
+      <select id="filter-cluster" onchange="renderNetwork()" style="width:auto">
+        <option value="">All Clusters</option>
+        <option>TAM</option>
+        <option>CSM</option>
+        <option>Delivery Manager</option>
+        <option>Program Manager</option>
+      </select>
+      <select id="filter-replied" onchange="renderNetwork()" style="width:auto">
+        <option value="">All Reply Status</option>
+        <option>Yes</option>
+        <option>No</option>
+      </select>
+      <button class="btn btn-ghost" onclick="clearFilters()">Clear Filters</button>
+    </div>
+
+    <div class="card" style="overflow-x: auto">
+      <table class="data-table" id="network-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Company</th>
+            <th>Role</th>
+            <th>Type</th>
+            <th>Cluster</th>
+            <th>Connected</th>
+            <th>Engaged</th>
+            <th>Messaged</th>
+            <th>Replied</th>
+            <th>Opportunity</th>
+            <th>Priority</th>
+            <th>Next Action</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="network-body">
+          <tr>
+            <td colspan="13" style="text-align:center; color:var(--text3); padding: 32px">
+              No contacts yet. Add your first target above.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:12px; display:flex; gap:12px; align-items:center;">
+      <span id="network-count" style="font-size:12px; color:var(--text3); font-family: 'IBM Plex Mono', monospace;"></span>
+      <button class="btn btn-ghost" onclick="exportNetwork()">📥 Export CSV</button>
+    </div>
+  </div>
+
+  <!-- WEEKLY REVIEW -->
+  <div id="page-weekly" class="page">
+    <div class="page-header">
+      <h1>Weekly Review</h1>
+      <p>Friday review. Measure what's working. Sharpen next week's targeting.</p>
+    </div>
+
+    <div class="grid-4">
+      <div class="stat-card">
+        <div class="stat-label">New Connections</div>
+        <input type="number" id="w-connects" placeholder="0" style="width:100%; margin-top:8px; font-size:24px; font-family:'Syne',sans-serif; font-weight:800; background:transparent; border:none; border-bottom: 1px solid var(--border2); border-radius:0; padding: 4px 0; color:var(--accent)">
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Replies Received</div>
+        <input type="number" id="w-replies" placeholder="0" style="width:100%; margin-top:8px; font-size:24px; font-family:'Syne',sans-serif; font-weight:800; background:transparent; border:none; border-bottom: 1px solid var(--border2); border-radius:0; padding: 4px 0; color:var(--green)">
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-label">Profile Views</div>
+        <input type="number" id="w-views" placeholder="0" style="width:100%; margin-top:8px; font-size:24px; font-family:'Syne',sans-serif; font-weight:800; background:transparent; border:none; border-bottom: 1px solid var(--border2); border-radius:0; padding: 4px 0; color:var(--yellow)">
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-label">Interviews Generated</div>
+        <input type="number" id="w-interviews" placeholder="0" style="width:100%; margin-top:8px; font-size:24px; font-family:'Syne',sans-serif; font-weight:800; background:transparent; border:none; border-bottom: 1px solid var(--border2); border-radius:0; padding: 4px 0; color:var(--accent2)">
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:8px">
+      <div class="card">
+        <div class="card-title">📊 Post Performance</div>
+        <div class="review-item">
+          <span class="review-question">Post 1 title</span>
+          <input type="text" class="review-input" id="w-post1-title" placeholder="Topic / title">
+        </div>
+        <div class="review-item">
+          <span class="review-question">Post 1 impressions</span>
+          <input type="number" class="review-input" id="w-post1-imp" placeholder="0">
+        </div>
+        <div class="review-item">
+          <span class="review-question">Post 1 format</span>
+          <select class="review-input" id="w-post1-fmt">
+            <option>Carousel (PDF)</option>
+            <option>Text only</option>
+            <option>Video</option>
+            <option>Poll</option>
+          </select>
+        </div>
+        <div class="review-item">
+          <span class="review-question">Post 2 title</span>
+          <input type="text" class="review-input" id="w-post2-title" placeholder="Topic / title">
+        </div>
+        <div class="review-item">
+          <span class="review-question">Post 2 impressions</span>
+          <input type="number" class="review-input" id="w-post2-imp" placeholder="0">
+        </div>
+        <div class="review-item">
+          <span class="review-question">Post 2 format</span>
+          <select class="review-input" id="w-post2-fmt">
+            <option>Carousel (PDF)</option>
+            <option>Text only</option>
+            <option>Video</option>
+            <option>Poll</option>
+          </select>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🔍 What Worked / What To Fix</div>
+        <div class="review-item" style="flex-direction:column; align-items:flex-start; gap:8px">
+          <span class="review-question">Which people/companies were most responsive?</span>
+          <textarea id="w-q1" rows="2" style="width:100%" placeholder="Note companies, roles, or types..."></textarea>
+        </div>
+        <div class="review-item" style="flex-direction:column; align-items:flex-start; gap:8px">
+          <span class="review-question">Which comment style got responses?</span>
+          <textarea id="w-q2" rows="2" style="width:100%" placeholder="Note what worked..."></textarea>
+        </div>
+        <div class="review-item" style="flex-direction:column; align-items:flex-start; gap:8px">
+          <span class="review-question">Strongest conversations started?</span>
+          <textarea id="w-q3" rows="2" style="width:100%" placeholder="Name / company / topic..."></textarea>
+        </div>
+        <div class="review-item" style="flex-direction:column; align-items:flex-start; gap:8px">
+          <span class="review-question">One thing to change next week</span>
+          <textarea id="w-q4" rows="2" style="width:100%" placeholder="Adjust targeting, messaging, post topic..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">📅 Next Week Planning</div>
+      <div class="review-item" style="flex-direction:column; align-items:flex-start; gap:8px">
+        <span class="review-question">Target companies to focus on next week (5–10)</span>
+        <textarea id="w-next-companies" rows="3" style="width:100%" placeholder="List companies and why..."></textarea>
+      </div>
+      <div class="review-item" style="flex-direction:column; align-items:flex-start; gap:8px">
+        <span class="review-question">Post topics for next week</span>
+        <input type="text" id="w-next-post1" placeholder="Post 1 topic" style="width:100%; margin-bottom:8px">
+        <input type="text" id="w-next-post2" placeholder="Post 2 topic" style="width:100%">
+      </div>
+    </div>
+
+    <div style="margin-top:16px; display:flex; gap:12px;">
+      <button class="btn btn-primary" onclick="saveWeeklyReview()">💾 Save This Week's Review</button>
+      <button class="btn btn-ghost" onclick="loadWeeklyHistory()">📋 View History</button>
+    </div>
+
+    <div id="weekly-history" style="margin-top:24px"></div>
+  </div>
+
+  <!-- MESSAGE TEMPLATES -->
+  <div id="page-templates" class="page">
+    <div class="page-header">
+      <h1>Message Templates</h1>
+      <p>Use these as starting points. Always personalize with real context before sending.</p>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this, 'tab-connect')">Connection Notes</div>
+      <div class="tab" onclick="switchTab(this, 'tab-outreach')">Direct Outreach</div>
+      <div class="tab" onclick="switchTab(this, 'tab-role')">Role-Specific</div>
+      <div class="tab" onclick="switchTab(this, 'tab-warm')">Warm Reconnect</div>
+    </div>
+
+    <div id="tab-connect" class="tab-content active">
+      <div class="template-block">
+        <div class="template-label">For Recruiter</div>
+        <button class="copy-btn" onclick="copyTemplate(this)">Copy</button>
+        Hi <em>[Name]</em>, I'm building my network around SaaS and client-facing delivery opportunities — especially TAM, CSM, and delivery roles. Glad to connect.
+      </div>
+      <div class="template-block">
+        <div class="template-label">For Hiring Manager</div>
+        <button class="copy-btn" onclick="copyTemplate(this)">Copy</button>
+        Hi <em>[Name]</em>, I work across software delivery, stakeholder management, and client operations, and I'm connecting with leaders in customer success and delivery. Glad to connect.
+      </div>
+      <div class="template-block">
+        <div class="template-label">For Former Colleague</div>
+        <button class="copy-btn" onclick="copyTemplate(this)">Copy</button>
+        Hi <em>[Name]</em>, great to see you here. Thought I'd reconnect — I'm currently exploring client-facing delivery and customer success opportunities. Would love to stay connected.
+      </div>
+      <div class="template-block">
+        <div class="template-label">After Engaging Their Post</div>
+        <button class="copy-btn" onclick="copyTemplate(this)">Copy</button>
+        Hi <em>[Name]</em>, I've appreciated your recent posts on <em>[topic]</em> — especially your point on <em>[specific point]</em>. My background is in software delivery and client operations and I'm exploring TAM/CSM opportunities. Glad to connect.
+      </div>
+    </div>
+
+    <div id="tab-outreach" class="tab-content">
+      <div class="template-block">
+        <div class="template-label">Cold Recruiter Intro</div>
+        <button class="copy-btn" onclick="copyTemplate(this)">Copy</button>
+        Hi <em>[Name]</em>, I came across your work in <em>[sector/company/function]</em> and wanted to connect more directly. My background is in client-facing software delivery, cross-functional team leadership, and stakeholder management, and I'm currently exploring TAM, CSM, and delivery-focused roles. Glad to connect.
+      </div>
+      <div class="template-block">
+        <div class="template-label">After Engaging Hiring Manager Post</div>
+        <button class="copy-btn" onclick="copyTemplate(this)">Copy</button>
+        Hi <em>[Name]</em>, I appreciated your recent post on <em>[topic]</em>. Your point about <em>[specific point]</em> really stood out — I've seen the same in software delivery environments where alignment and communication directly affect client confidence. My background is in delivery and client operations, and I'm currently exploring TAM/CSM-type opportunities. Glad to connect and follow your work.
+      </div>
+      <div class="template-block">
+        <div class="template-label">After They Engaged Your Post</div>
+        <button class="copy-btn" onclick="copyTemplate(this)">Copy</button>
+        Hi <em>[Name]</em>, thanks for engaging with my post earlier — appreciated that. I'm currently focused on delivery, customer success, and client-facing software roles, so it's great to connect with people working in that space.
+      </div>
+    </div>
+
+    <div id="tab-role" class="tab-content">
+      <div class="template-block">
+        <div class="template-label">Hiring Manager — Specific Opening</div>
+        <button class="copy-btn" onclick="copyTemplate(this)">Copy</button>
+        Hi <em>[Name]</em>, I saw the <em>[role title]</em> opening and wanted to reach out directly. My background is in client-facing software delivery, stakeholder alignment, and cross-functional team leadership, which feels highly relevant to the role. I've applied formally as well and would be glad to connect if my profile looks relevant.
+      </div>
+      <div class="template-block">
+        <div class="template-label">3-Sentence Cover Letter (for active roles on LinkedIn)</div>
+        <button class="copy-btn" onclick="copyTemplate(this)">Copy</button>
+        Hi <em>[Name]</em>, I'm reaching out about the <em>[role title]</em> you posted — I've been working in client-facing delivery and account management across SaaS and software teams for 15+ years and believe my background maps closely to what you're looking for. I've led delivery for portfolios of 3–5 client accounts concurrently, managed cross-functional teams, and driven account stability and expansion. I'd welcome a quick conversation if you're open to it.
+      </div>
+    </div>
+
+    <div id="tab-warm" class="tab-content">
+      <div class="template-block">
+        <div class="template-label">Warm Reconnect — General</div>
+        <button class="copy-btn" onclick="copyTemplate(this)">Copy</button>
+        Hi <em>[Name]</em>, hope you've been well. I wanted to reconnect — I'm currently exploring client-facing delivery, customer success, and TAM-type opportunities. Great to see what you're working on.
+      </div>
+      <div class="template-block">
+        <div class="template-label">Warm Reconnect — They're in a Relevant Role</div>
+        <button class="copy-btn" onclick="copyTemplate(this)">Copy</button>
+        Hi <em>[Name]</em>, hope you've been well. I wanted to reconnect as I'm currently exploring TAM/CSM and delivery-focused opportunities and thought of reaching out since you're in a space close to that world. Would love to reconnect and hear how things are going on your end.
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMENT BANK -->
+  <div id="page-comments" class="page">
+    <div class="page-header">
+      <h1>Comment Bank</h1>
+      <p>Adapt these to make substantive comments. Never post "Great insight" or "Thanks for sharing."</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Customer Success Posts</div>
+      <div class="comment-item">
+        <div class="comment-tag">CS / Retention</div>
+        <div class="comment-text">Strong point. Customer success tends to become much easier when teams focus not just on responsiveness, but on proactively reducing uncertainty for the client. Most churn isn't from bad service — it's from silent anxiety.</div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-tag">CS / Onboarding</div>
+        <div class="comment-text">This is often underestimated. A lot of long-term account health is shaped during onboarding, because that's where confidence and expectations are formed. If that phase is noisy, trust gets harder to rebuild later.</div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-tag">CS / Value</div>
+        <div class="comment-text">Agreed. The shift from relationship management to value delivery is where most CS teams get stuck. It's easy to be liked. It's harder to be the person clients credit for their outcomes.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">Delivery & Project Leadership Posts</div>
+      <div class="comment-item">
+        <div class="comment-tag">Delivery</div>
+        <div class="comment-text">This is a strong point. In delivery settings, trust usually improves when teams move beyond status updates and start surfacing risks, dependencies, and decisions more clearly. That usually changes the conversation with clients fast.</div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-tag">Alignment</div>
+        <div class="comment-text">Agreed. A lot of client friction comes less from execution itself and more from unclear ownership and communication gaps between teams. Better internal clarity often solves what looks like a client issue.</div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-tag">Cross-func</div>
+        <div class="comment-text">I've seen this play out in cross-functional software projects. Alignment improves fast when client expectations, internal timelines, and escalation paths are all made visible early — not at the point of crisis.</div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-tag">Retention</div>
+        <div class="comment-text">This also connects strongly to retention. Clients are often more forgiving of delays than they are of uncertainty. The teams that over-communicate risk end up with far fewer escalations.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">Stakeholder & Communication Posts</div>
+      <div class="comment-item">
+        <div class="comment-tag">Stakeholders</div>
+        <div class="comment-text">Yes — communication quality changes outcomes. In many cases, better visibility into risks and decisions matters more than simply increasing update frequency. Less noise, more signal.</div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-tag">Remote teams</div>
+        <div class="comment-text">I've seen this too. Remote collaboration works much better when ownership and decision paths are explicit, not assumed. Async-first environments punish ambiguity more harshly than co-located ones.</div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-tag">Leadership</div>
+        <div class="comment-text">This is underrated. People talk about execution but the teams I've seen move fastest had almost no surprises internally — they'd already done the alignment work before anything went out the door.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">TAM / Technical Account Posts</div>
+      <div class="comment-item">
+        <div class="comment-tag">TAM</div>
+        <div class="comment-text">Strong framing. The best TAMs I've seen operate more like internal advocates for the client — they close gaps before the client even names them. That's where the expansion conversations come naturally.</div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-tag">SaaS / Product</div>
+        <div class="comment-text">Agreed. Product adoption often isn't a product problem — it's a communication and enablement problem. The teams that close that gap early see far better retention numbers.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPERATING RULES -->
+  <div id="page-rules" class="page">
+    <div class="page-header">
+      <h1>Operating Rules</h1>
+      <p>Your non-negotiables. Read these when you're tempted to cut corners.</p>
+    </div>
+
+    <div class="section-label">Connection Rules</div>
+    <div class="rule-block">
+      <div class="rule-icon">✅</div>
+      <div class="rule-text"><strong>Filter before adding.</strong> Ask: Is this person in my target function, company, or hiring chain? Could familiarity realistically create opportunity? Would I actually want a conversation from this person?</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">✅</div>
+      <div class="rule-text"><strong>Default: connect without a note.</strong> Most notes are wasted and feel forced. Only add a note when you have real context — shared company, mutual colleague, their active job post.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">🚫</div>
+      <div class="rule-text"><strong>Never connect randomly.</strong> Do not add other job seekers, random people, or anyone you'd never realistically want a conversation with. Relevance over volume.</div>
+    </div>
+
+    <div class="section-label">Engagement Rules</div>
+    <div class="rule-block">
+      <div class="rule-icon">✅</div>
+      <div class="rule-text"><strong>Comments must add value.</strong> Add perspective, show judgment, connect to real experience, or extend the discussion. 1–2 sentences minimum. Reads like a practitioner.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">🚫</div>
+      <div class="rule-text"><strong>Never post "Great post," "Totally agree," or "Thanks for sharing."</strong> These are invisible. They signal no thought. They do nothing.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">✅</div>
+      <div class="rule-text"><strong>24-hour rule.</strong> After connecting, check if they posted. Engage within 24 hours. After someone comments on your post, reciprocate. After someone views your profile and is relevant, engage their content.</div>
+    </div>
+
+    <div class="section-label">Messaging Rules</div>
+    <div class="rule-block">
+      <div class="rule-icon">✅</div>
+      <div class="rule-text"><strong>Only message with real context.</strong> You engaged their post. They viewed your profile. They accepted your request. They posted a relevant role. You have shared background.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">🚫</div>
+      <div class="rule-text"><strong>Never send lazy asks.</strong> "Hi, I'm open to work." "Any roles for me?" "Let me know if you hear anything." These require the other person to do all the thinking. They center the interaction entirely around you.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">🚫</div>
+      <div class="rule-text"><strong>Never attach your CV in a cold message.</strong> It signals desperation and creates friction before trust is established.</div>
+    </div>
+
+    <div class="section-label">Posting Rules (2026 Algorithm)</div>
+    <div class="rule-block">
+      <div class="rule-icon">✅</div>
+      <div class="rule-text"><strong>Default format: PDF carousel.</strong> Upload a multi-page PDF as your post. 5–7 slides. 6.6% avg engagement rate vs 2% for text. Same content, 3–4x reach.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">✅</div>
+      <div class="rule-text"><strong>Post 8–10 AM PH time. Stay active 90 mins after.</strong> The golden hour determines whether LinkedIn expands your reach. Only 5% of posts that underperform in hour 1 recover.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">🚫</div>
+      <div class="rule-text"><strong>Never put external links in post body.</strong> 60% reach penalty. Links to external sites (CV, job boards, company pages) belong in the first comment only — and even then expect some suppression.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">🚫</div>
+      <div class="rule-text"><strong>Never post about your job search publicly.</strong> No rejection diary posts. No "I'm looking for work, please help." No documenting your application count. This makes you look distressed, not credible.</div>
+    </div>
+
+    <div class="section-label">Mindset Rules</div>
+    <div class="rule-block">
+      <div class="rule-icon">🎯</div>
+      <div class="rule-text"><strong>Networking supports applications — it does not replace them.</strong> If LinkedIn engagement starts feeling like an avoidance tactic, it's not working. The main engine is still: applications + positioning + interview conversion.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">🎯</div>
+      <div class="rule-text"><strong>You are not trying to impress strangers.</strong> You are trying to make the right 20–30 people think: "I've seen this guy around. He seems solid." That is the entire game.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">🎯</div>
+      <div class="rule-text"><strong>Familiarity compounds. Start before you feel ready.</strong> The system is slow at first and invisible. Recognition builds underneath. Then one day a message lands. Stay consistent through the quiet period.</div>
+    </div>
+  </div>
+
+  <!-- ALGORITHM TIPS -->
+  <div id="page-algo" class="page">
+    <div class="page-header">
+      <h1>Algorithm Tips</h1>
+      <p>Current data on what LinkedIn rewards in 2026. Updated from research.</p>
+    </div>
+
+    <div class="section-label">Content Format Rankings</div>
+    <div class="grid-4" style="margin-bottom:8px">
+      <div class="stat-card purple">
+        <div class="stat-label">LinkedIn Live</div>
+        <div class="stat-value" style="color:var(--accent2); font-size:28px">29.6%</div>
+        <div class="stat-sub">avg engagement rate</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">PDF Carousel</div>
+        <div class="stat-value" style="color:var(--accent); font-size:28px">6.6%</div>
+        <div class="stat-sub">avg engagement rate ⭐ Use this</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Native Video</div>
+        <div class="stat-value" style="color:var(--green); font-size:28px">5.6%</div>
+        <div class="stat-sub">avg engagement rate</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-label">Text Only</div>
+        <div class="stat-value" style="color:var(--yellow); font-size:28px">~2%</div>
+        <div class="stat-sub">avg engagement rate</div>
+      </div>
+    </div>
+
+    <div class="section-label">Key Algorithm Rules</div>
+    <div class="algo-tip">
+      <div class="algo-tip-icon">⚡</div>
+      <div class="algo-tip-text"><strong>Golden Hour:</strong> The first 60–90 minutes after posting determines your reach. Only 5% of posts that underperform in hour 1 recover. Post at 8–10 AM PH and respond to every early comment immediately.</div>
+    </div>
+    <div class="algo-tip">
+      <div class="algo-tip-icon">🚫</div>
+      <div class="algo-tip-text"><strong>External links = 60% reach penalty.</strong> Any post with a link to an external site gets suppressed. Put links in the first comment only if absolutely necessary. Keep your post body clean.</div>
+    </div>
+    <div class="algo-tip">
+      <div class="algo-tip-icon">💬</div>
+      <div class="algo-tip-text"><strong>Comment quality > likes.</strong> LinkedIn now detects whether comments meaningfully contribute to the topic. A post with 50 real comments outperforms a post with 500 likes. Your engagement on others' posts also matters — AI-generated comments get 5x fewer replies.</div>
+    </div>
+    <div class="algo-tip">
+      <div class="algo-tip-icon">📄</div>
+      <div class="algo-tip-text"><strong>PDF carousels create dwell time.</strong> Each page swipe signals engagement to the algorithm. They allow you to tell a complete story, break down a concept, and demonstrate expertise. Create carousels in Canva — use their LinkedIn carousel templates.</div>
+    </div>
+    <div class="algo-tip">
+      <div class="algo-tip-icon">🏠</div>
+      <div class="algo-tip-text"><strong>Company pages are dying.</strong> Company pages get just 5% of feed allocation. Personal profiles dominate 65% of content. Your personal posts reach 561% more people than reshares from company pages. Always post from your personal profile.</div>
+    </div>
+    <div class="algo-tip">
+      <div class="algo-tip-icon">#️⃣</div>
+      <div class="algo-tip-text"><strong>Use 3–5 specific hashtags max.</strong> Hashtags play a smaller role now — LinkedIn uses improved text detection. Too many hashtags (7+) correlate with 68% reduced reach. Use 3–5 niche-specific tags, not generic ones.</div>
+    </div>
+    <div class="algo-tip">
+      <div class="algo-tip-icon">📅</div>
+      <div class="algo-tip-text"><strong>Best posting days: Tue–Thu.</strong> Mid-morning (8–11 AM) in your local timezone. Weekend posts get less immediate engagement but continue gaining traction into Monday. Avoid Sunday evening posts for APAC audiences.</div>
+    </div>
+    <div class="algo-tip">
+      <div class="algo-tip-icon">🔄</div>
+      <div class="algo-tip-text"><strong>Behavioral reinforcement loop.</strong> When you consistently interact with someone's content, LinkedIn shows you more of their posts — and them more of yours. Your names start appearing in each other's feeds. This is the familiarity engine. It compounds over 2–4 weeks of consistent activity.</div>
+    </div>
+
+    <div class="section-label">Profile Search Optimization</div>
+    <div class="algo-tip">
+      <div class="algo-tip-icon">🔍</div>
+      <div class="algo-tip-text"><strong>Recruiters search like Google.</strong> They type exact titles: "Customer Success Manager" or "Technical Account Manager" — not variations. Use the exact title everywhere: headline, about, experience. Not "client success leader" or "account growth driver."</div>
+    </div>
+    <div class="algo-tip">
+      <div class="algo-tip-icon">🛠️</div>
+      <div class="algo-tip-text"><strong>Skills section = 40% of recruiter searches now start here.</strong> LinkedIn increased max skills from 50 to 100. Add skills to every past role, not just your current one. Treat skills like SEO keywords — if you've done it, list it.</div>
+    </div>
+    <div class="algo-tip">
+      <div class="algo-tip-icon">📋</div>
+      <div class="algo-tip-text"><strong>Upload your CV to LinkedIn Jobs.</strong> Go to Jobs → Résumés and Application Data → upload → toggle on "Share résumé data with hirers." This lets employers find you in backend searches beyond just your headline. Master CV is fine for this — you're not chasing a specific role, you're creating inbound.</div>
+    </div>
+  </div>
+
+</div><!-- .main -->
+
+<div id="toast"></div>
+
+<script>
+// Navigation
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// Date
+function setDate() {
+  const d = new Date();
+  const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const str = d.toLocaleDateString('en-PH', opts);
+  document.querySelectorAll('.date-display, #today-date, #counters-date').forEach(el => {
+    if(el) el.textContent = str;
+  });
+}
+setDate();
+
+// Checklist toggle
+function toggle(item) {
+  item.classList.toggle('done');
+  const box = item.querySelector('.check-box');
+  box.textContent = item.classList.contains('done') ? '✓' : '';
+  saveChecklist();
+}
+
+function resetAll() {
+  document.querySelectorAll('.checklist-item').forEach(i => {
+    i.classList.remove('done');
+    i.querySelector('.check-box').textContent = '✓';
+  });
+  localStorage.removeItem('checklist_' + dateKey());
+  toast('Tasks reset for today');
+}
+
+function saveChecklist() {
+  const states = [];
+  document.querySelectorAll('.checklist-item').forEach((item, i) => {
+    states.push(item.classList.contains('done'));
+  });
+  localStorage.setItem('checklist_' + dateKey(), JSON.stringify(states));
+}
+
+function loadChecklist() {
+  const saved = localStorage.getItem('checklist_' + dateKey());
+  if (!saved) return;
+  const states = JSON.parse(saved);
+  document.querySelectorAll('.checklist-item').forEach((item, i) => {
+    if (states[i]) {
+      item.classList.add('done');
+      item.querySelector('.check-box').textContent = '✓';
+    }
+  });
+}
+
+function dateKey() {
+  return new Date().toISOString().split('T')[0];
+}
+
+// Counters
+const counters = { connects: 0, engages: 0, messages: 0, accepts: 0, replies: 0, 'profile-views': 0 };
+const targets = { connects: 10, engages: 5, messages: 2 };
+
+function adjustCounter(key, delta) {
+  counters[key] = Math.max(0, (counters[key] || 0) + delta);
+  document.getElementById('c-' + key).textContent = counters[key];
+
+  // Update target label
+  const tEl = document.getElementById('t-' + key);
+  if (targets[key]) {
+    const met = counters[key] >= targets[key];
+    tEl.textContent = met ? `✅ Target met (${targets[key]})` : `Target: ${targets[key]}`;
+    tEl.className = 'counter-target' + (met ? ' target-met' : '');
+
+    // Progress bars
+    const pct = Math.min(100, Math.round(counters[key] / targets[key] * 100));
+    const fill = document.getElementById('prog-' + key);
+    const label = document.getElementById('prog-' + key + '-label');
+    if (fill) fill.style.width = pct + '%';
+    if (label) label.textContent = `${counters[key]} / ${targets[key]}`;
+  }
+  saveCounters();
+}
+
+function resetCounters() {
+  Object.keys(counters).forEach(k => counters[k] = 0);
+  Object.keys(counters).forEach(k => {
+    const el = document.getElementById('c-' + k);
+    if (el) el.textContent = 0;
+    const t = document.getElementById('t-' + k);
+    if (t && targets[k]) {
+      t.textContent = `Target: ${targets[k]}`;
+      t.className = 'counter-target';
+    }
+    const fill = document.getElementById('prog-' + k);
+    if (fill) fill.style.width = '0%';
+    const label = document.getElementById('prog-' + k + '-label');
+    if (label && targets[k]) label.textContent = `0 / ${targets[k]}`;
+  });
+  localStorage.removeItem('counters_' + dateKey());
+  toast('Counters reset');
+}
+
+function saveCounters() {
+  localStorage.setItem('counters_' + dateKey(), JSON.stringify(counters));
+}
+
+function loadCounters() {
+  const saved = localStorage.getItem('counters_' + dateKey());
+  if (!saved) return;
+  const saved_data = JSON.parse(saved);
+  Object.assign(counters, saved_data);
+  Object.keys(counters).forEach(k => adjustCounter(k, 0));
+}
+
+// Network Tracker
+let networkData = [];
+
+function loadNetworkData() {
+  const saved = localStorage.getItem('network_data');
+  if (saved) networkData = JSON.parse(saved);
+  renderNetwork();
+}
+
+function saveNetworkData() {
+  localStorage.setItem('network_data', JSON.stringify(networkData));
+}
+
+function addNetworkEntry() {
+  const entry = {
+    id: Date.now(),
+    name: document.getElementById('n-name').value.trim(),
+    company: document.getElementById('n-company').value.trim(),
+    role: document.getElementById('n-role').value.trim(),
+    type: document.getElementById('n-type').value,
+    cluster: document.getElementById('n-cluster').value,
+    priority: document.getElementById('n-priority').value,
+    date: document.getElementById('n-date').value || dateKey(),
+    connected: document.getElementById('n-connected').value,
+    engaged: document.getElementById('n-engaged').value,
+    messaged: document.getElementById('n-messaged').value,
+    replied: document.getElementById('n-replied').value,
+    opportunity: document.getElementById('n-opportunity').value,
+    next: document.getElementById('n-next').value.trim()
+  };
+
+  if (!entry.name) { toast('Please enter a name'); return; }
+
+  networkData.unshift(entry);
+  saveNetworkData();
+  renderNetwork();
+  clearForm();
+  toast('Contact added ✓');
+}
+
+function clearForm() {
+  ['n-name','n-company','n-role','n-next'].forEach(id => document.getElementById(id).value = '');
+  ['n-type','n-cluster','n-priority','n-connected','n-engaged','n-messaged','n-replied','n-opportunity'].forEach(id => {
+    document.getElementById(id).selectedIndex = 0;
+  });
+}
+
+function renderNetwork() {
+  const filterType = document.getElementById('filter-type').value;
+  const filterCluster = document.getElementById('filter-cluster').value;
+  const filterReplied = document.getElementById('filter-replied').value;
+
+  let data = networkData.filter(e => {
+    if (filterType && e.type !== filterType) return false;
+    if (filterCluster && e.cluster !== filterCluster) return false;
+    if (filterReplied && e.replied !== filterReplied) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('network-body');
+  const count = document.getElementById('network-count');
+  count.textContent = `${data.length} of ${networkData.length} contacts`;
+
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; color:var(--text3); padding:32px">No contacts match your filters.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map(e => {
+    const connBadge = e.connected === 'Yes' ? 'badge-green' : e.connected === 'Pending' ? 'badge-yellow' : 'badge-red';
+    const replBadge = e.replied === 'Yes' ? 'badge-green' : 'badge-red';
+    const oppBadge = e.opportunity !== 'No' && e.opportunity ? 'badge-purple' : '';
+    const typeBadge = e.type === 'Recruiter' ? 'badge-blue' : e.type === 'Hiring Manager' ? 'badge-purple' : e.type === 'Warm Contact' ? 'badge-green' : 'badge-yellow';
+
+    return `<tr>
+      <td><strong>${e.name || '—'}</strong></td>
+      <td>${e.company || '—'}</td>
+      <td style="color:var(--text2); font-size:12px">${e.role || '—'}</td>
+      <td><span class="badge ${typeBadge}">${e.type || '—'}</span></td>
+      <td><span class="badge badge-blue">${e.cluster || '—'}</span></td>
+      <td><span class="badge ${connBadge}">${e.connected}</span></td>
+      <td><span class="badge ${e.engaged === 'Yes' ? 'badge-green' : 'badge-red'}">${e.engaged}</span></td>
+      <td style="font-size:11px; color:var(--text2)">${e.messaged}</td>
+      <td><span class="badge ${replBadge}">${e.replied}</span></td>
+      <td>${e.opportunity !== 'No' && e.opportunity ? `<span class="badge ${oppBadge}">${e.opportunity}</span>` : '<span style="color:var(--text3)">—</span>'}</td>
+      <td>${e.priority || '—'}</td>
+      <td style="font-size:11px; color:var(--text2); max-width:160px">${e.next || '—'}</td>
+      <td><button class="btn btn-danger" onclick="deleteEntry(${e.id})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function deleteEntry(id) {
+  networkData = networkData.filter(e => e.id !== id);
+  saveNetworkData();
+  renderNetwork();
+  toast('Contact removed');
+}
+
+function clearFilters() {
+  document.getElementById('filter-type').selectedIndex = 0;
+  document.getElementById('filter-cluster').selectedIndex = 0;
+  document.getElementById('filter-replied').selectedIndex = 0;
+  renderNetwork();
+}
+
+function exportNetwork() {
+  const headers = ['Name','Company','Role','Type','Cluster','Priority','Date','Connected','Engaged','Messaged','Replied','Opportunity','Next Action'];
+  const rows = networkData.map(e => [e.name, e.company, e.role, e.type, e.cluster, e.priority, e.date, e.connected, e.engaged, e.messaged, e.replied, e.opportunity, e.next].map(v => `"${(v||'').replace(/"/g,'""')}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'mike_network_tracker.csv'; a.click();
+  toast('CSV exported ✓');
+}
+
+// Weekly Review
+function saveWeeklyReview() {
+  const week = getWeekKey();
+  const data = {
+    week,
+    connects: document.getElementById('w-connects').value,
+    replies: document.getElementById('w-replies').value,
+    views: document.getElementById('w-views').value,
+    interviews: document.getElementById('w-interviews').value,
+    post1_title: document.getElementById('w-post1-title').value,
+    post1_imp: document.getElementById('w-post1-imp').value,
+    post1_fmt: document.getElementById('w-post1-fmt').value,
+    post2_title: document.getElementById('w-post2-title').value,
+    post2_imp: document.getElementById('w-post2-imp').value,
+    post2_fmt: document.getElementById('w-post2-fmt').value,
+    q1: document.getElementById('w-q1').value,
+    q2: document.getElementById('w-q2').value,
+    q3: document.getElementById('w-q3').value,
+    q4: document.getElementById('w-q4').value,
+    next_companies: document.getElementById('w-next-companies').value,
+    next_post1: document.getElementById('w-next-post1').value,
+    next_post2: document.getElementById('w-next-post2').value,
+    saved: new Date().toLocaleDateString()
+  };
+  const history = JSON.parse(localStorage.getItem('weekly_reviews') || '[]');
+  const existing = history.findIndex(r => r.week === week);
+  if (existing >= 0) history[existing] = data;
+  else history.unshift(data);
+  localStorage.setItem('weekly_reviews', JSON.stringify(history));
+  toast('Weekly review saved ✓');
+}
+
+function loadWeeklyHistory() {
+  const history = JSON.parse(localStorage.getItem('weekly_reviews') || '[]');
+  const el = document.getElementById('weekly-history');
+  if (!history.length) { el.innerHTML = '<p style="color:var(--text3); font-size:13px">No saved reviews yet.</p>'; return; }
+  el.innerHTML = `
+    <div class="section-label">Review History</div>
+    ${history.map(r => `
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+          <strong style="font-family:'Syne',sans-serif">Week of ${r.week}</strong>
+          <span style="font-size:11px; color:var(--text3)">Saved ${r.saved}</span>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; margin-bottom:12px">
+          <div><div class="stat-label">Connections</div><div style="font-size:24px; font-weight:800; color:var(--accent)">${r.connects||0}</div></div>
+          <div><div class="stat-label">Replies</div><div style="font-size:24px; font-weight:800; color:var(--green)">${r.replies||0}</div></div>
+          <div><div class="stat-label">Profile Views</div><div style="font-size:24px; font-weight:800; color:var(--yellow)">${r.views||0}</div></div>
+          <div><div class="stat-label">Interviews</div><div style="font-size:24px; font-weight:800; color:var(--accent2)">${r.interviews||0}</div></div>
+        </div>
+        ${r.q4 ? `<div style="font-size:12px; color:var(--text2)"><strong>To change next week:</strong> ${r.q4}</div>` : ''}
+      </div>
+    `).join('')}
+  `;
+}
+
+function getWeekKey() {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const mon = new Date(d.setDate(diff));
+  return mon.toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'});
+}
+
+// Tabs
+function switchTab(el, tabId) {
+  el.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const parent = el.closest('.page');
+  parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+}
+
+// Copy template
+function copyTemplate(btn) {
+  const block = btn.closest('.template-block');
+  const clone = block.cloneNode(true);
+  clone.querySelector('.template-label').remove();
+  clone.querySelector('.copy-btn').remove();
+  // Replace em tags with [brackets]
+  clone.querySelectorAll('em').forEach(em => {
+    em.replaceWith('[' + em.textContent + ']');
+  });
+  const text = clone.textContent.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+
+// Toast
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Init
+loadChecklist();
+loadCounters();
+loadNetworkData();
+
+// Default date for form
+document.getElementById('n-date').value = dateKey();
+</script>
+</body>
+</html>
