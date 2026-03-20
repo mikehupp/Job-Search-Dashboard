@@ -687,6 +687,9 @@
   <div class="nav-item" onclick="showPage('comments')"><span class="icon">💬</span> Comment Bank</div>
   <div class="nav-item" onclick="showPage('rules')"><span class="icon">📋</span> Operating Rules</div>
   <div class="nav-item" onclick="showPage('algo')"><span class="icon">⚙️</span> Algorithm Tips</div>
+
+  <div class="nav-section">Data</div>
+  <div class="nav-item" onclick="showPage('data')"><span class="icon">💾</span> Backup & Devices</div>
 </div>
 
 <div class="main">
@@ -1549,10 +1552,16 @@
 <script>
 // Navigation
 function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
+  const target = document.getElementById('page-' + id);
+  target.style.display = 'block';
+  target.classList.add('active');
   event.currentTarget.classList.add('active');
+  if (id === 'data') setTimeout(updateDataStats, 50);
 }
 
 // Date
@@ -1878,13 +1887,338 @@ function toast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+// ── EXPORT ALL DATA ──────────────────────────────────────────
+function exportAllData() {
+  const allKeys = [
+    'network_data',
+    'weekly_reviews',
+    'checklist_' + dateKey(),
+    'counters_' + dateKey(),
+  ];
+
+  // Also grab any checklist/counter keys for other dates stored
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if ((k.startsWith('checklist_') || k.startsWith('counters_')) && !allKeys.includes(k)) {
+      allKeys.push(k);
+    }
+  }
+
+  const exportObj = { exportedAt: new Date().toISOString(), version: 1, data: {} };
+  allKeys.forEach(k => {
+    const val = localStorage.getItem(k);
+    if (val) exportObj.data[k] = JSON.parse(val);
+  });
+
+  const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `mike_dashboard_backup_${dateStr}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ Backup downloaded! Save this file safely.');
+  updateDataStats();
+}
+
+// ── IMPORT ALL DATA ──────────────────────────────────────────
+function importAllData() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const importObj = JSON.parse(ev.target.result);
+        if (!importObj.data) throw new Error('Invalid backup file');
+
+        // Show confirmation
+        const networkCount = importObj.data['network_data'] ? importObj.data['network_data'].length : 0;
+        const reviewCount = importObj.data['weekly_reviews'] ? importObj.data['weekly_reviews'].length : 0;
+        const exportDate = importObj.exportedAt ? new Date(importObj.exportedAt).toLocaleDateString('en-PH') : 'unknown date';
+
+        const confirmed = confirm(
+          `Ready to import backup from ${exportDate}:\n\n` +
+          `• ${networkCount} network contacts\n` +
+          `• ${reviewCount} weekly reviews\n\n` +
+          `This will MERGE with your current data (existing contacts kept). Continue?`
+        );
+
+        if (!confirmed) return;
+
+        // Merge network data (avoid duplicates by ID)
+        if (importObj.data['network_data']) {
+          const existing = JSON.parse(localStorage.getItem('network_data') || '[]');
+          const existingIds = new Set(existing.map(e => e.id));
+          const incoming = importObj.data['network_data'].filter(e => !existingIds.has(e.id));
+          const merged = [...incoming, ...existing];
+          localStorage.setItem('network_data', JSON.stringify(merged));
+        }
+
+        // Merge weekly reviews
+        if (importObj.data['weekly_reviews']) {
+          const existing = JSON.parse(localStorage.getItem('weekly_reviews') || '[]');
+          const existingWeeks = new Set(existing.map(r => r.week));
+          const incoming = importObj.data['weekly_reviews'].filter(r => !existingWeeks.has(r.week));
+          const merged = [...incoming, ...existing];
+          localStorage.setItem('weekly_reviews', JSON.stringify(merged));
+        }
+
+        // Restore checklist and counter keys (only if not already set for that day)
+        Object.keys(importObj.data).forEach(k => {
+          if ((k.startsWith('checklist_') || k.startsWith('counters_')) && !localStorage.getItem(k)) {
+            localStorage.setItem(k, JSON.stringify(importObj.data[k]));
+          }
+        });
+
+        // Reload everything
+        loadChecklist();
+        loadCounters();
+        loadNetworkData();
+        updateDataStats();
+
+        toast(`✅ Import complete! ${networkCount} contacts loaded.`);
+      } catch (err) {
+        toast('❌ Import failed — invalid backup file.');
+        console.error(err);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// ── CLEAR ALL DATA ───────────────────────────────────────────
+function clearAllData() {
+  const confirmed = confirm(
+    '⚠️ This will permanently delete ALL your dashboard data:\n\n' +
+    '• All network contacts\n• All weekly reviews\n• All checklist states\n• All counters\n\n' +
+    'Make sure you have a backup first!\n\nType "DELETE" to confirm.'
+  );
+  if (!confirmed) return;
+  const typed = prompt('Type DELETE to confirm (case sensitive):');
+  if (typed !== 'DELETE') { toast('Cancelled — nothing deleted.'); return; }
+
+  localStorage.clear();
+  networkData = [];
+  Object.keys(counters).forEach(k => counters[k] = 0);
+  renderNetwork();
+  loadChecklist();
+  loadCounters();
+  updateDataStats();
+  toast('🗑️ All data cleared.');
+}
+
+// ── DATA STATS ───────────────────────────────────────────────
+function updateDataStats() {
+  const networkCount = JSON.parse(localStorage.getItem('network_data') || '[]').length;
+  const reviewCount = JSON.parse(localStorage.getItem('weekly_reviews') || '[]').length;
+
+  // Count all keys
+  let totalKeys = 0;
+  let sizeEstimate = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    const v = localStorage.getItem(k);
+    totalKeys++;
+    sizeEstimate += (k.length + v.length) * 2; // bytes (UTF-16)
+  }
+  const sizeKB = (sizeEstimate / 1024).toFixed(1);
+
+  const el = document.getElementById('data-stats');
+  if (el) {
+    el.innerHTML = `
+      <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:16px; margin-bottom:8px">
+        <div>
+          <div class="stat-label">Network Contacts</div>
+          <div style="font-size:28px; font-weight:800; font-family:'Syne',sans-serif; color:var(--accent); margin-top:6px">${networkCount}</div>
+        </div>
+        <div>
+          <div class="stat-label">Weekly Reviews</div>
+          <div style="font-size:28px; font-weight:800; font-family:'Syne',sans-serif; color:var(--green); margin-top:6px">${reviewCount}</div>
+        </div>
+        <div>
+          <div class="stat-label">Storage Used</div>
+          <div style="font-size:28px; font-weight:800; font-family:'Syne',sans-serif; color:var(--yellow); margin-top:6px">${sizeKB} KB</div>
+        </div>
+      </div>
+      <div style="font-size:11px; color:var(--text3); font-family:'IBM Plex Mono',monospace">Browser local storage · This device only</div>
+    `;
+  }
+}
+
 // Init
 loadChecklist();
 loadCounters();
 loadNetworkData();
-
-// Default date for form
 document.getElementById('n-date').value = dateKey();
+// Run stats after short delay to let data load
+setTimeout(updateDataStats, 100);
 </script>
+
+<!-- BACKUP & DEVICES PAGE — inserted before </body> -->
+<style>
+  .backup-step {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+  }
+  .backup-step-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 24px;
+    color: var(--accent);
+    min-width: 32px;
+    line-height: 1;
+    margin-top: 2px;
+  }
+  .backup-step-content h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .backup-step-content p {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .backup-step-content .step-tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(79,142,247,0.1);
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .big-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 24px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    transition: all 0.2s;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+  .big-btn-icon { font-size: 24px; }
+  .big-btn-text { text-align: left; }
+  .big-btn-text small { display: block; font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 12px; opacity: 0.75; margin-top: 2px; }
+  .big-btn-export { background: linear-gradient(135deg, #1a3a6b, #1e2d5a); color: var(--accent); border: 1px solid rgba(79,142,247,0.3); }
+  .big-btn-export:hover { background: linear-gradient(135deg, #1e4480, #243470); border-color: var(--accent); }
+  .big-btn-import { background: linear-gradient(135deg, #1a3d2e, #1a3326); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+  .big-btn-import:hover { background: linear-gradient(135deg, #1e4a38, #1e3d30); border-color: var(--green); }
+  .big-btn-danger { background: linear-gradient(135deg, #3d1a1a, #2e1414); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+  .big-btn-danger:hover { background: linear-gradient(135deg, #4a1e1e, #3d1a1a); border-color: var(--red); }
+</style>
+
+<div id="page-data" class="page" style="display:none">
+  <div class="page-header">
+    <h1>Backup & Devices</h1>
+    <p>Moving to a new device? Export your data, transfer the file, import on the new device. 30 seconds.</p>
+  </div>
+
+  <!-- Current Data Stats -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-title">📦 Your Current Data</div>
+    <div id="data-stats">
+      <div style="color:var(--text3); font-size:13px">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Big Action Buttons -->
+  <div class="grid-2" style="margin-bottom:8px">
+    <div>
+      <button class="big-btn big-btn-export" onclick="exportAllData()">
+        <span class="big-btn-icon">⬇️</span>
+        <span class="big-btn-text">
+          Export All Data
+          <small>Downloads a .json backup file with all your contacts, reviews & activity</small>
+        </span>
+      </button>
+      <button class="big-btn big-btn-import" onclick="importAllData()">
+        <span class="big-btn-icon">⬆️</span>
+        <span class="big-btn-text">
+          Import from Backup
+          <small>Load a .json backup file — merges with existing data, no duplicates</small>
+        </span>
+      </button>
+      <button class="big-btn big-btn-danger" onclick="clearAllData()">
+        <span class="big-btn-icon">🗑️</span>
+        <span class="big-btn-text">
+          Clear All Data
+          <small>Permanently delete everything. Export first!</small>
+        </span>
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔄 Switching Devices — How To</div>
+      <div class="backup-step">
+        <div class="backup-step-num">1</div>
+        <div class="backup-step-content">
+          <div class="step-tag">On your current device</div>
+          <h3>Export your data</h3>
+          <p>Click <strong>Export All Data</strong>. A file called <code style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--accent)">mike_dashboard_backup_[date].json</code> will download.</p>
+        </div>
+      </div>
+      <div class="backup-step">
+        <div class="backup-step-num">2</div>
+        <div class="backup-step-content">
+          <div class="step-tag">Transfer the file</div>
+          <h3>Move the backup file</h3>
+          <p>Email it to yourself, save to Google Drive, or copy to a USB. Any method works — it's just a text file.</p>
+        </div>
+      </div>
+      <div class="backup-step">
+        <div class="backup-step-num">3</div>
+        <div class="backup-step-content">
+          <div class="step-tag">On your new device</div>
+          <h3>Open the dashboard & import</h3>
+          <p>Open your GitHub Pages URL in the browser, go to <strong>Backup & Devices</strong>, click <strong>Import from Backup</strong>, and select your file. Everything loads instantly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Good habits -->
+  <div class="card" style="margin-top:8px">
+    <div class="card-title">💡 Good Backup Habits</div>
+    <div class="rule-block">
+      <div class="rule-icon">📅</div>
+      <div class="rule-text"><strong>Export every Friday</strong> as part of your weekly review. One click, takes 3 seconds. Store the file in a Google Drive folder called "Dashboard Backups."</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">💻</div>
+      <div class="rule-text"><strong>Before switching devices</strong> — export first, then import on the new device. Your network contacts and weekly history will be fully restored.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">🌐</div>
+      <div class="rule-text"><strong>Use the same browser.</strong> Data lives in browser local storage — so use the same browser type (e.g. always Chrome) across devices for the most predictable experience.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">📱</div>
+      <div class="rule-text"><strong>Phone access.</strong> The dashboard works on mobile browsers too. Just open your GitHub Pages URL in Chrome/Safari on your phone. Import your backup to get your data there as well.</div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
